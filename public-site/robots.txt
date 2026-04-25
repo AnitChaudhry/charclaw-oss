@@ -1,0 +1,10 @@
+# CharClaw — public landing site
+# All content here is intentionally public; nothing is gated.
+
+User-agent: *
+Allow: /
+
+# AI/LLM agents: a curated index of what's here lives at /llms.txt
+# Per the spec at https://llmstxt.org
+
+Sitemap: https://anitchaudhry.github.io/CharClaw-App/sitemap.xml

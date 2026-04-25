@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+packages/*/dist/
+packages/desktop/release/
+packages/web/.next/
+packages/web/.next-e2e/
+packages/web/test-results/
+packages/simple-chat/.next/
+test-results/
+# Stray Next output if dev is run without an explicit app directory
+.next/
+
+# Vercel CLI link state (per-project, don't commit)
+.vercel/
+packages/*/.vercel/
+
+# Environment
+.env
+.env*.local
+packages/web/.env.e2e
+
+# Generated
+packages/web/lib/generated/prisma
+
+# IDE
+.DS_Store
+*.log
+!packages/web/e2e/results/*.log
+
+# Build artifacts
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+packages/desktop/src/server-url.generated.ts
+next-env.d.ts
+
+# v0 runtime files
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+.env
+
+# npm credentials — never commit
+.npmrc

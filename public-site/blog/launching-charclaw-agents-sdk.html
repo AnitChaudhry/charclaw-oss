@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Launching @charclaw/agents — CharClaw Blog</title>
+  <meta name="description" content="A TypeScript SDK that runs Claude, Codex, Gemini, Goose, OpenCode, and Pi inside Daytona sandboxes or on your own machine — restart-tolerant turns, unified event stream, AGPL-3.0, live on npm." />
+  <meta name="keywords" content="charclaw, charclaw agents sdk, ai coding agents, claude code, openai codex, daytona, npm, typescript sdk, launch" />
+  <meta name="author" content="Anit Chaudhary" />
+  <link rel="canonical" href="https://anitchaudhry.github.io/CharClaw-App/blog/launching-charclaw-agents-sdk.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://anitchaudhry.github.io/CharClaw-App/blog/launching-charclaw-agents-sdk.html" />
+  <meta property="og:title" content="Launching @charclaw/agents" />
+  <meta property="og:description" content="One TypeScript API across six coding agents and two sandbox runtimes. AGPL-3.0. Live on npm now." />
+  <meta property="og:image" content="https://anitchaudhry.github.io/CharClaw-App/assets/banner.jpg" />
+  <meta property="og:site_name" content="CharClaw" />
+  <meta property="article:published_time" content="2026-04-25" />
+  <meta property="article:author" content="Anit Chaudhary" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Launching @charclaw/agents" />
+  <meta name="twitter:description" content="One TypeScript API across six coding agents and two sandbox runtimes. AGPL-3.0. Live on npm." />
+
+  <meta name="theme-color" content="#07192a" />
+
+  <!-- BlogPosting structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Launching the CharClaw Agents SDK",
+    "description": "One TypeScript API across six coding agents and two sandbox runtimes. Background execution that survives a serverless cold-start. Restart-tolerant turns. Available on npm now under AGPL-3.0.",
+    "author": { "@type": "Person", "name": "Anit Chaudhary", "email": "anitc98@gmail.com" },
+    "datePublished": "2026-04-25",
+    "dateModified": "2026-04-26",
+    "url": "https://anitchaudhry.github.io/CharClaw-App/blog/launching-charclaw-agents-sdk.html",
+    "image": "https://anitchaudhry.github.io/CharClaw-App/assets/banner.jpg",
+    "publisher": { "@type": "Organization", "name": "CharClaw", "url": "https://anitchaudhry.github.io/CharClaw-App/" },
+    "mainEntityOfPage": "https://anitchaudhry.github.io/CharClaw-App/blog/launching-charclaw-agents-sdk.html",
+    "keywords": "charclaw agents, npm, claude code, codex, gemini, daytona, agpl-3.0, typescript sdk"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <div class="bg-dim" aria-hidden="true"></div>
+
+  <div class="page">
+    <!-- ─── Navbar ─── -->
+    <nav class="nav">
+      <a href="../index.html" class="wordmark">CharClaw<sup>®</sup></a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#download">Download</a>
+        <a href="../index.html#fork">Fork &amp; Own</a>
+        <a href="../docs/agents-sdk.html">Docs</a>
+        <a href="../blog/" class="active">Blog</a>
+        <a href="https://github.com/AnitChaudhry/CharClaw-App" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <a href="../index.html#download" class="btn btn-glass btn-md">Begin Journey</a>
+    </nav>
+
+    <!-- ─── Article ─── -->
+    <article class="article">
+      <div class="crumb">
+        <a href="../index.html">CharClaw</a>
+        <span class="sep">/</span>
+        <a href="../blog/">Blog</a>
+        <span class="sep">/</span>
+        <span>Launching the Agents SDK</span>
+      </div>
+
+      <h1>Launching the CharClaw Agents SDK</h1>
+      <div class="article-meta">
+        <span class="pill">Release</span>
+        <span>By Anit Chaudhary</span>
+        <span>·</span>
+        <span>April 25, 2026</span>
+        <span>·</span>
+        <span>4 min read</span>
+      </div>
+
+      <div class="prose">
+        <p>
+          Today we're shipping <strong><a href="https://www.npmjs.com/package/@charclaw/agents" target="_blank" rel="noopener">@charclaw/agents 0.2.0</a></strong> — the
+          TypeScript SDK that powers every agent run inside CharClaw, now
+          live on npm and free for you to use in your own projects.
+        </p>
+        <p>
+          One API. Six coding agents. Two sandbox runtimes. Background
+          execution that survives a serverless cold-start. No polling glue,
+          no per-CLI parser headaches, no shell-quoting bugs. That's the goal,
+          and that's what's in this release.
+        </p>
+
+        <h2>The problem nobody really wants to solve</h2>
+        <p>
+          When you sit down with Claude Code, Codex, or Gemini in a terminal,
+          things feel great. You type, the agent responds, tools fire, code
+          gets written. The CLIs are good.
+        </p>
+        <p>
+          The instant you try to put one of those CLIs <em>inside a product</em>
+          — a web app, a desktop daemon, a Slack bot, a scheduled
+          autopilot — the experience falls apart in four directions at once:
+        </p>
+        <ul>
+          <li>
+            <strong>Turns outlive HTTP requests.</strong> A 90-second refactor
+            starts inside a Vercel function that ends in 60.
+          </li>
+          <li>
+            <strong>You can't read stdin/stdout pipes</strong> once the
+            spawning process is gone. Polling-friendly transport or bust.
+          </li>
+          <li>
+            <strong>Each agent emits a different JSON event shape.</strong>
+            Anthropic uses one. OpenAI uses another. Google has its own. You
+            end up writing six parsers nobody's tested together.
+          </li>
+          <li>
+            <strong>Credentials in the same process as the agent</strong> is
+            a bad time. You want isolation, not a hope-and-pray
+            <code>process.env</code>.
+          </li>
+        </ul>
+        <p>
+          Inside CharClaw we hit all four problems on day one. We hit them
+          again every time we added a new agent. So we extracted the solution.
+        </p>
+
+        <h2>What's in 0.2.0</h2>
+        <p>
+          A single <code>createSession(provider, options)</code> entry point
+          that abstracts all of the above. It returns a
+          <code>BackgroundSession</code> that you can <code>start()</code>,
+          <code>getEvents()</code>, <code>cancel()</code>, and
+          <code>getSession()</code> back into from a different process.
+        </p>
+        <div class="snippet" data-copy>
+<pre><code>import { Daytona } from "@daytonaio/sdk"
+import { adaptDaytonaSandbox, createSession } from "@charclaw/agents"
+
+const daytona = new Daytona({ apiKey: process.env.DAYTONA_API_KEY! })
+const sandbox = adaptDaytonaSandbox(await daytona.create())
+
+const session = await createSession("claude", {
+  sandbox,
+  env: { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY! },
+  model: "sonnet",
+})
+
+await session.start("Add input validation to /signup.")
+
+while ((await session.getEvents()).running) {
+  await new Promise(r =&gt; setTimeout(r, 1000))
+}</code></pre>
+          <button type="button" class="copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <p>
+          Same six lines work for Codex, Gemini, Goose, OpenCode, and Pi —
+          just change <code>"claude"</code> to whatever you like. Each agent's
+          events are normalized to a single union:
+        </p>
+        <div class="snippet" data-copy>
+<pre><code>type Event =
+  | { type: "session"; id: string }
+  | { type: "token"; text: string }
+  | { type: "tool_start"; name: string; input?: unknown }
+  | { type: "tool_end"; output?: string }
+  | { type: "end"; error?: string }
+  // …</code></pre>
+          <button type="button" class="copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <p>
+          Tool names get canonicalized too —
+          <code>"Bash"</code>, <code>"shell"</code>, <code>"command"</code>,
+          and <code>"exec"</code> all collapse to <code>shell</code> so your
+          UI doesn't need a switch statement per agent.
+        </p>
+
+        <h2>Restart-tolerant by default</h2>
+        <p>
+          Every session writes its config and parser cursor to
+          <code>~/.charclaw-sessions/&lt;id&gt;/</code> inside the sandbox. If
+          the Node process running your poll loop dies — serverless cold-start,
+          deploy, transient crash — a fresh process can call
+          <code>getSession(id, { sandbox })</code> and pick up exactly where
+          the previous one left off. No event replay, no double-counting.
+        </p>
+
+        <h2>Two runtimes, one interface</h2>
+        <p>
+          The same <code>BackgroundSession</code> works against either:
+        </p>
+        <ul>
+          <li>
+            <strong>A Daytona cloud sandbox.</strong> Spin up a fresh micro-VM
+            per turn or per workspace. Credentials never enter the sandbox
+            unless you explicitly pass them as <code>env</code>.
+          </li>
+          <li>
+            <strong>The local host.</strong> For desktop apps, hobby
+            projects, or anywhere a cloud sandbox is overkill. Uses
+            <code>spawn(detached: true)</code> under the hood with the same
+            log-file polling pattern.
+          </li>
+        </ul>
+
+        <h2>Why AGPL-3.0</h2>
+        <p>
+          <code>@charclaw/agents</code> is <strong>AGPL-3.0-or-later</strong>.
+          That choice is deliberate. The SDK does real work — wrapping six
+          flaky CLIs, normalizing six event shapes, threading restart-tolerant
+          state through two runtimes — and we'd rather not see that work
+          become the proprietary moat of a SaaS competitor without anyone
+          giving back.
+        </p>
+        <p>
+          For self-hosted use, internal tooling, or open-source forks, AGPL is
+          a non-issue: build whatever you want. If you want to run a modified
+          version as a closed-source network service, that's exactly the case
+          AGPL is designed to surface — get in touch at
+          <a href="mailto:anitc98@gmail.com">anitc98@gmail.com</a> and we'll talk
+          about commercial licensing.
+        </p>
+
+        <h2>Honest about the seams</h2>
+        <p>
+          Two caveats worth flagging on day one of v0.2.0:
+        </p>
+        <ul>
+          <li>
+            <strong>The Claude parser is stable;</strong> Codex, Gemini, Goose,
+            OpenCode, and Pi parsers accept a <em>tolerant</em> superset of
+            common JSON-Lines event shapes. They work for the cases I've
+            actually run, but the JSON formats of those CLIs evolve faster
+            than I can chase. If you find a mismatch, open an issue or a PR —
+            the parsers are 100 lines each and easy to extend.
+          </li>
+          <li>
+            <strong>The mock agent replaces the previous Eliza built-in.</strong>
+            It's an inline shell echo that emits a couple of structured events
+            — useful for tests, deterministic, no API key needed. If you were
+            using Eliza for anything, switch to <code>"mock"</code>.
+          </li>
+        </ul>
+
+        <h2>What's next</h2>
+        <p>
+          The roadmap (loose, not promises):
+        </p>
+        <ul>
+          <li>Tighten the non-Claude parsers based on real-world reports.</li>
+          <li>A <code>tool_delta</code> path so streaming tool input lands as
+              it's typed, not all at once.</li>
+          <li>An optional <code>resume</code> flag on
+              <code>session.start</code> so you can chain follow-up turns
+              without reattaching.</li>
+          <li>SSH-based remote runtime adapter for users running CharClaw
+              against a long-lived dev server instead of Daytona.</li>
+        </ul>
+
+        <h2>Get it</h2>
+        <div class="snippet" data-copy>
+<pre><code>npm install @charclaw/agents @daytonaio/sdk</code></pre>
+          <button type="button" class="copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <p>
+          Full reference is in the
+          <a href="../docs/agents-sdk.html">SDK documentation</a>. The source
+          lives at
+          <a href="https://github.com/AnitChaudhry/charclaw/tree/master/packages/agents"
+          target="_blank" rel="noopener">github.com/AnitChaudhry/charclaw/packages/agents</a>
+          — issues, PRs, and questions all welcome there.
+        </p>
+        <p>
+          Thanks for reading. Build something with it and tell me how it goes.
+        </p>
+        <p style="margin-top: 2.5rem; color: var(--muted-foreground); font-size: 0.9rem;">
+          — Anit
+        </p>
+      </div>
+    </article>
+
+    <!-- ─── Footer ─── -->
+    <footer class="footer">
+      <a href="https://github.com/AnitChaudhry/CharClaw-App" target="_blank" rel="noopener">Source on GitHub</a>
+      <span class="dot">·</span>
+      <span>SDK: AGPL-3.0 · App: Apache 2.0</span>
+      <span class="dot">·</span>
+      <a href="../docs/agents-sdk.html">Docs</a>
+    </footer>
+  </div>
+
+  <script src="../script.js" defer></script>
+</body>
+</html>

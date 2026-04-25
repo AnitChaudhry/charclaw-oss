@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CharClaw">
+  <defs>
+    <radialGradient id="bg" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#114b6e"/>
+      <stop offset="100%" stop-color="#062941"/>
+    </radialGradient>
+    <linearGradient id="stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cfe6ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- subtle starfield dots so the favicon matches the landing aesthetic -->
+  <circle cx="14" cy="14" r="0.9" fill="#ffffff" opacity="0.85"/>
+  <circle cx="50" cy="11" r="0.7" fill="#ffffff" opacity="0.7"/>
+  <circle cx="9"  cy="44" r="0.7" fill="#ffffff" opacity="0.7"/>
+  <circle cx="55" cy="48" r="0.9" fill="#ffffff" opacity="0.85"/>
+  <circle cx="22" cy="54" r="0.6" fill="#ffffff" opacity="0.5"/>
+  <!-- Open "C" mark -->
+  <path d="M44 19 a16 16 0 1 0 0 26" fill="none" stroke="url(#stroke)" stroke-width="6" stroke-linecap="round"/>
+</svg>

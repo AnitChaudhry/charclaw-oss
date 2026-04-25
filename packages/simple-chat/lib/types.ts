@@ -1,0 +1,218 @@
+/**
+ * Types for Simple Chat
+ * Re-exports shared types from @charclaw/common
+ */
+
+// Re-export shared types
+export type {
+  ContentBlock,
+  ToolCall,
+  AgentStatus,
+  AgentStatusResponse,
+} from "@charclaw/common"
+
+import type { ContentBlock } from "@charclaw/common"
+
+// Re-export agent types
+export type { Agent, ModelOption, UserCredentialFlags } from "@charclaw/common"
+export {
+  agentModels,
+  agentLabels,
+  defaultAgentModel,
+  getDefaultAgent,
+  getDefaultModelForAgent,
+  getModelLabel,
+  hasCredentialsForModel,
+} from "@charclaw/common"
+
+/** Message type for distinguishing system messages from regular chat */
+export type MessageType = "chat" | "git-operation"
+
+export interface Message {
+  id: string
+  role: "user" | "assistant"
+  content: string
+  timestamp: number
+  /** Type of message - defaults to "chat" for regular messages */
+  messageType?: MessageType
+  /** For git-operation messages, whether this is an error */
+  isError?: boolean
+  /** Tool calls made by the assistant */
+  toolCalls?: Array<{
+    tool: string
+    summary: string
+    fullSummary?: string
+    output?: string
+  }>
+  /** Ordered content blocks (text and tool calls interleaved) */
+  contentBlocks?: ContentBlock[]
+  /** Files uploaded with this message (for user messages) */
+  uploadedFiles?: string[]
+  /** For git-operation merge messages: the branch the link should point at on GitHub. */
+  linkBranch?: string
+}
+
+// Special value for new repository (local git repo, no GitHub)
+export const NEW_REPOSITORY = "__new__"
+
+export interface Chat {
+  id: string
+
+  // Repo config (set when chat created, IMMUTABLE after first message)
+  repo: string           // "owner/repo" or NEW_REPOSITORY for local repo
+  baseBranch: string     // "main" - what we branched FROM (ignored for NEW_REPOSITORY)
+
+  // Created on first message
+  branch: string | null         // "swift-lunar-abc1" - the NEW branch we created
+  sandboxId: string | null      // Daytona sandbox ID
+  sessionId: string | null      // Agent session ID for conversation continuity
+  previewUrlPattern?: string    // URL pattern for dev server previews
+
+  // Active execution (for recovery after page refresh)
+  backgroundSessionId?: string  // Set when agent starts, cleared on completion
+
+  // Agent config (per-chat, can be changed)
+  agent?: string        // "claude-code" | "opencode" | "codex" | etc.
+  model?: string        // Model ID for the agent
+
+  // Chat data
+  messages: Message[]
+  createdAt: number
+  updatedAt: number
+  /** Timestamp of last activity: user message sent, agent content received, or agent completion. Used for sort order. */
+  lastActiveAt?: number
+
+  /** Messages queued while the agent was running. The next one is dispatched automatically on completion. */
+  queuedMessages?: QueuedMessage[]
+  /** When true, auto-dispatch of queued messages is suspended (e.g. user clicked Stop). Cleared when the user sends or queues again. */
+  queuePaused?: boolean
+
+  // Display name (auto-generated from first prompt)
+  displayName: string | null
+
+  /** When this chat was branched from another chat, the parent's id. */
+  parentChatId?: string
+
+  /** What's currently open in the preview pane for this chat, if anything.
+   *  Persists across reloads but is scoped per chat so switching chats shows
+   *  that chat's own preview (or hides the pane if it has none). */
+  previewItem?:
+    | { type: "file"; filePath: string; filename: string }
+    | { type: "terminal"; id: string }
+    | { type: "server"; port: number; url: string }
+
+  // Status
+  status: ChatStatus
+
+  /** Set when a merge targets this branch but sandbox was stopped. Triggers pull on next execute. */
+  needsSync?: boolean
+}
+
+export type ChatStatus = "pending" | "creating" | "ready" | "running" | "error"
+
+/** A message that the user submitted while the agent was busy. Files are not persisted. */
+export interface QueuedMessage {
+  id: string
+  content: string
+  agent?: string
+  model?: string
+}
+
+export type Theme = "light" | "dark" | "system"
+
+export interface Settings {
+  // API keys for various providers
+  anthropicApiKey: string
+  /** Claude subscription OAuth token (the JSON blob printed by `security find-generic-password -s "Claude Code-credentials" -w`). Takes precedence over anthropicApiKey for the claude-code agent. */
+  anthropicAuthToken: string
+  openaiApiKey: string
+  opencodeApiKey: string
+  geminiApiKey: string
+
+  // Default agent/model selection
+  defaultAgent: string
+  defaultModel: string
+
+  // UI preferences
+  theme: Theme
+}
+
+export interface AppState {
+  currentChatId: string | null
+  chats: Chat[]
+  settings: Settings
+}
+
+// Re-export GitHub types from common
+export type { GitHubRepo, GitHubBranch, GitHubUser } from "@charclaw/common"
+
+// File upload types
+export interface PendingFile {
+  id: string
+  file: File
+  name: string
+  size: number
+}
+
+// API types
+export interface CreateSandboxRequest {
+  repo: string
+  baseBranch: string
+  newBranch: string
+}
+
+export interface CreateSandboxResponse {
+  sandboxId: string
+  previewUrlPattern?: string
+}
+
+export interface ExecuteAgentRequest {
+  sandboxId: string
+  prompt: string
+  repoName: string
+  agent?: string
+  model?: string
+}
+
+export interface ExecuteAgentResponse {
+  success: boolean
+}
+
+// =============================================================================
+// SSE Event Types
+// =============================================================================
+
+export interface SSEUpdateEvent {
+  status: "running" | "completed" | "error"
+  content: string
+  toolCalls: Array<{
+    tool: string
+    summary: string
+    fullSummary?: string
+    output?: string
+  }>
+  contentBlocks: Array<
+    | { type: "text"; text: string }
+    | { type: "tool_calls"; toolCalls: Array<{ tool: string; summary: string; fullSummary?: string; output?: string }> }
+  >
+  cursor: number
+  sessionId?: string
+  error?: string
+}
+
+export interface SSECompleteEvent {
+  status: "completed" | "error"
+  sessionId?: string
+  error?: string
+  cursor: number
+}
+
+export interface SSEHeartbeatEvent {
+  cursor: number
+  timestamp: number
+}
+
+export interface SSEErrorEvent {
+  error: string
+  cursor: number
+}

@@ -1,0 +1,34 @@
+{
+  "name": "@charclaw/daemon",
+  "version": "0.1.0",
+  "description": "CharClaw local runtime daemon — runs AI agents on your machine",
+  "type": "module",
+  "bin": {
+    "charclaw": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "node scripts/dev.mjs",
+    "start": "node dist/index.js",
+    "lint": "eslint src --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@charclaw/agents": "*",
+    "commander": "^12.1.0",
+    "eventsource": "^3.0.5",
+    "ws": "^8.18.0"
+  },
+  "optionalDependencies": {
+    "@lydell/node-pty": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/ws": "^8.5.12",
+    "tsx": "^4.19.3",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

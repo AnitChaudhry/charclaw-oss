@@ -1,0 +1,85 @@
+name: Release Desktop
+
+# Tag-driven desktop release for the OSS repo. Public builds cover macOS
+# (.dmg, universal arch), Windows (.exe, NSIS) and Linux (.AppImage) so a
+# fork is a complete cross-platform product out of the box. Push a tag
+# like `v0.1.7` on main and this workflow publishes all three installers
+# to the matching GitHub Release. The Download CTA on
+# https://anitchaudhry.github.io/CharClaw-App/ reads the latest release
+# via the GitHub API and renders a per-OS picker.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish (e.g. v0.1.7) — must already exist"
+        required: true
+
+# electron-builder publishes via GH_TOKEN; the auto-provisioned GITHUB_TOKEN
+# needs `contents: write` to create / update Releases on this repo.
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        # `npm ci` is strict on lockfile sync — fall back to `npm install`
+        # if the lockfile drifts (the repo doesn't gate that yet).
+        run: npm ci || npm install
+
+      - name: Build agents SDK
+        run: npm run build -w @charclaw/agents
+
+      - name: Build daemon
+        run: npm run build -w @charclaw/daemon
+
+      - name: Build & publish desktop installers
+        run: npm run release:ci -w @charclaw/desktop
+        env:
+          # electron-builder reads GH_TOKEN to create/update the Release
+          # on the repo named in build.publish[0] in packages/desktop/package.json.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # ── macOS code signing (optional) ──────────────────────────
+          # Add these secrets in Settings → Secrets to enable signed,
+          # notarized .dmg builds. Until then `mac.identity: null` in
+          # packages/desktop/package.json keeps the unsigned build path
+          # working without aborting the run.
+          #   CSC_LINK                       (base64 of .p12 cert)
+          #   CSC_KEY_PASSWORD               (.p12 password)
+          #   APPLE_ID                       (Apple ID email)
+          #   APPLE_APP_SPECIFIC_PASSWORD    (app-specific password)
+          #   APPLE_TEAM_ID                  (10-char team ID)
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - name: Upload artifacts (debugging fallback)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: charclaw-${{ matrix.os }}
+          path: packages/desktop/release/*
+          if-no-files-found: ignore
+          retention-days: 7

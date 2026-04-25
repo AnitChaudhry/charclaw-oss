@@ -1,0 +1,43 @@
+# Ensure all text files use LF in the repository regardless of contributor OS.
+# Quiets the warning storm when committing on Windows hosts and keeps diffs
+# stable across mixed-OS teams.
+
+* text=auto eol=lf
+
+# Explicit text — eol=lf so Windows checkouts don't silently CRLF these.
+*.ts        text eol=lf
+*.tsx       text eol=lf
+*.js        text eol=lf
+*.mjs       text eol=lf
+*.cjs       text eol=lf
+*.jsx       text eol=lf
+*.json      text eol=lf
+*.md        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.html      text eol=lf
+*.css       text eol=lf
+*.svg       text eol=lf
+*.sh        text eol=lf
+*.ps1       text eol=lf
+Dockerfile  text eol=lf
+.gitignore  text eol=lf
+.gitattributes text eol=lf
+
+# Explicit binary — never apply line-ending or text conversions.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.webp      binary
+*.mp4       binary
+*.webm      binary
+*.woff      binary
+*.woff2     binary
+*.zip       binary
+*.gz        binary
+*.tgz       binary
+*.dmg       binary
+*.exe       binary
+*.AppImage  binary

@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CharClaw — Your AI dev team, running locally</title>
+  <meta name="description" content="CharClaw is a self-hosted AI engineering platform. Assign GitHub issues to AI coding agents (Claude Code, Codex, Gemini, Goose, OpenCode, Pi); they code, commit, and push PRs on your own machine. The @charclaw/agents SDK is open source on npm." />
+  <meta name="keywords" content="ai coding agents, claude code, openai codex, gemini cli, goose, opencode, pi, daytona, self-hosted, charclaw, ai dev team, autonomous agents, coding sdk, agpl, npm" />
+  <meta name="author" content="Anit Chaudhary" />
+  <link rel="canonical" href="https://anitchaudhry.github.io/CharClaw-App/" />
+  <link rel="alternate" type="application/rss+xml" title="CharClaw Blog" href="blog/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://anitchaudhry.github.io/CharClaw-App/" />
+  <meta property="og:title" content="CharClaw — Your AI dev team, running locally" />
+  <meta property="og:description" content="Self-hosted AI engineering: assign GitHub issues to coding agents, watch them ship PRs from your own machine. @charclaw/agents SDK on npm — Claude/Codex/Gemini/Goose/OpenCode/Pi unified." />
+  <meta property="og:image" content="https://anitchaudhry.github.io/CharClaw-App/assets/banner.jpg" />
+  <meta property="og:site_name" content="CharClaw" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CharClaw — Your AI dev team, running locally" />
+  <meta name="twitter:description" content="Self-hosted AI engineering. @charclaw/agents on npm — Claude/Codex/Gemini/Goose/OpenCode/Pi unified." />
+  <meta name="twitter:image" content="https://anitchaudhry.github.io/CharClaw-App/assets/banner.jpg" />
+
+  <!-- Theme + favicons -->
+  <meta name="theme-color" content="#07192a" />
+
+  <!-- Structured data: SoftwareApplication for the desktop app -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "CharClaw",
+    "description": "Self-hosted AI engineering platform that runs coding agents (Claude Code, Codex, Gemini, Goose, OpenCode, Pi) on your own machine to ship pull requests autonomously.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "macOS, Windows, Linux",
+    "url": "https://anitchaudhry.github.io/CharClaw-App/",
+    "downloadUrl": "https://github.com/AnitChaudhry/CharClaw-App/releases/latest",
+    "license": "https://www.apache.org/licenses/LICENSE-2.0",
+    "author": {
+      "@type": "Person",
+      "name": "Anit Chaudhary",
+      "email": "anitc98@gmail.com"
+    },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "softwareVersion": "0.2.0"
+  }
+  </script>
+  <!-- Structured data: SoftwareSourceCode for the SDK -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "@charclaw/agents",
+    "description": "TypeScript SDK that runs Claude / Codex / Gemini / Goose / OpenCode / Pi coding agents inside Daytona sandboxes or directly on the host. Restart-tolerant background sessions, unified event stream.",
+    "programmingLanguage": "TypeScript",
+    "codeRepository": "https://github.com/AnitChaudhry/CharClaw-App",
+    "url": "https://www.npmjs.com/package/@charclaw/agents",
+    "license": "https://www.gnu.org/licenses/agpl-3.0.html",
+    "version": "0.2.0",
+    "author": { "@type": "Person", "name": "Anit Chaudhary" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <video autoplay loop muted playsinline aria-hidden="true" class="bg-video">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4" type="video/mp4" />
+  </video>
+  <div class="bg-dim" aria-hidden="true"></div>
+
+  <div class="page">
+    <!-- ─── Navbar ─── -->
+    <nav class="nav">
+      <a href="#top" class="wordmark">CharClaw<sup>®</sup></a>
+      <div class="nav-links">
+        <a href="#top" class="active">Home</a>
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+        <a href="#fork">Fork &amp; Own</a>
+        <a href="docs/agents-sdk.html">Docs</a>
+        <a href="blog/">Blog</a>
+        <a href="https://github.com/AnitChaudhry/CharClaw-App" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="auth-pills">
+        <a class="auth-pill" href="https://charclaw.upfyn.com?intent=signup" data-tooltip="Sign up">Hey</a>
+        <a class="auth-pill auth-pill-primary" href="https://charclaw.upfyn.com?intent=login" data-tooltip="Login">Hello</a>
+      </div>
+    </nav>
+
+    <!-- ─── Hero ─── -->
+    <section id="top" class="hero">
+      <a href="#fork" class="oss-chip fade-rise">
+        ★ Proudly open source — Apache 2.0, self-hosted, bring your own keys
+      </a>
+      <h1 class="hero-title fade-rise-1">
+        Your <em>AI dev team</em>,<br />
+        running <em>locally.</em>
+      </h1>
+      <p class="hero-sub fade-rise-2">
+        CharClaw turns coding agents into real teammates — assign issues on a
+        Kanban board, watch the work stream back from your own machine, and
+        ship pull requests. No cloud sandboxes. No rate-limited micro-VMs.
+        Just you, your repo, and a squad of AI that doesn't clock out.
+      </p>
+      <a href="#download" class="btn btn-glass btn-lg fade-rise-3">Begin Journey</a>
+    </section>
+
+    <!-- ─── Features ─── -->
+    <section id="features" class="features">
+      <div class="eyebrow">Why CharClaw</div>
+      <div class="grid-3">
+        <div class="card liquid-glass">
+          <div class="card-title">Local-first</div>
+          <p class="card-body">
+            Agents run on your own machine — your dev env, your credentials,
+            your SSH keys. No cloud sandbox fees, no rate-limited micro-VMs.
+          </p>
+        </div>
+        <div class="card liquid-glass">
+          <div class="card-title">Multi-agent</div>
+          <p class="card-body">
+            Claude Code, OpenAI Codex, Google Gemini, Goose, OpenCode, Pi,
+            and any custom CLI. One Kanban board; mix and match.
+          </p>
+        </div>
+        <div class="card liquid-glass">
+          <div class="card-title">Workspaces, not accounts</div>
+          <p class="card-body">
+            Projects, mentions, inbox, chat-with-agents, autopilots, and
+            pins — scoped per workspace. Invite teammates, human or AI.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Download ─── -->
+    <section id="download" class="download">
+      <div class="eyebrow">Two ways to start</div>
+      <div class="grid-2">
+        <div class="card liquid-glass download-card" id="download-card">
+          <div class="card-tag">
+            Desktop
+            <span class="arrow">↗</span>
+          </div>
+          <div class="card-title" id="download-title">
+            CharClaw Desktop
+          </div>
+          <p class="card-body">
+            Native Electron app with a built-in runtime daemon. System tray
+            shortcut, auto-updater, agents running fully offline where they
+            have the most leverage — your machine.
+          </p>
+          <a id="download-primary"
+             class="btn btn-glass btn-md card-cta"
+             href="https://github.com/AnitChaudhry/CharClaw-App/releases/latest"
+             target="_blank" rel="noopener">
+            Download
+            <span class="download-version" id="download-version"></span>
+          </a>
+          <div class="download-others" id="download-others">
+            <span class="download-loading" id="download-loading">Loading latest release…</span>
+          </div>
+          <div class="download-meta">
+            <a href="https://github.com/AnitChaudhry/CharClaw-App/releases" target="_blank" rel="noopener">See all versions ↗</a>
+            <span class="dot">·</span>
+            Apache 2.0 — fork &amp; rebrand freely
+          </div>
+        </div>
+
+        <a href="https://charclaw.upfyn.com" target="_blank" rel="noopener"
+           class="card liquid-glass card-link">
+          <div class="card-tag">
+            Web
+            <span class="arrow">↗</span>
+          </div>
+          <div class="card-title">Try it in your browser</div>
+          <p class="card-body">
+            Same board, same agents, no install. Sign in with GitHub and hand
+            a repo to a teammate in under a minute. Great for trying
+            CharClaw before you commit.
+          </p>
+          <span class="btn btn-glass btn-md card-cta">Open web app</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ─── Fork & Own ─── -->
+    <section id="fork" class="fork">
+      <div class="eyebrow">★ Proudly open source · Apache 2.0</div>
+      <h2 class="section-title">Fork it. Bring your own keys. Ship it.</h2>
+      <p class="section-sub">
+        CharClaw is open-source and runs entirely on infrastructure you
+        control. The public repo ships the source code only — not the
+        maintainer's credentials. Every deploy generates its own secrets,
+        registers its own GitHub OAuth app, and picks its own domain. The
+        steps below take you from clone to live site.
+      </p>
+
+      <ol class="steps">
+        <li class="step liquid-glass">
+          <div class="step-head">
+            <span class="step-num">1</span>
+            <span class="step-title">Clone + run the one-command setup</span>
+          </div>
+          <div class="step-body">
+            <p>
+              One command — works on macOS, Linux, and Windows (Git Bash or
+              PowerShell). Installs dependencies, seeds
+              <code>packages/web/.env</code> with freshly-generated secrets,
+              applies the Prisma schema, and prints the <code>npm run dev</code>
+              invocation that starts both the web server and the local
+              runtime daemon together.
+            </p>
+            <div class="snippet" data-copy>
+<pre><code>git clone https://github.com/AnitChaudhry/CharClaw-App.git
+cd CharClaw-App
+bash scripts/setup.sh     # or: powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
+npm run dev</code></pre>
+              <button type="button" class="copy-btn" aria-label="Copy">Copy</button>
+            </div>
+            <p class="hint">
+              Prefer an AI to set this up for you? Paste this page (or the
+              repo's <a href="https://github.com/AnitChaudhry/CharClaw-App/blob/main/README.md" target="_blank" rel="noopener">README</a>)
+              at Claude Code, Cursor, or any capable coding agent and say
+              <em>"set up CharClaw on my machine"</em>. The steps are structured
+              so an agent can execute them without further prompts.
+            </p>
+          </div>
+        </li>
+
+        <li class="step liquid-glass">
+          <div class="step-head">
+            <span class="step-num">2</span>
+            <span class="step-title">Register your own GitHub OAuth app</span>
+          </div>
+          <div class="step-body">
+            <p>
+              Go to
+              <a href="https://github.com/settings/applications/new"
+                 target="_blank" rel="noopener">github.com/settings/applications/new</a>
+              and fill in:
+            </p>
+            <ul class="bullets">
+              <li><strong>Homepage URL:</strong> your domain (e.g. <code>https://charclaw.example.com</code>)</li>
+              <li><strong>Authorization callback URL:</strong> <code>https://your-domain.com/api/auth/callback/github</code></li>
+            </ul>
+            <p>Copy the Client ID and generated Client Secret.</p>
+          </div>
+        </li>
+
+        <li class="step liquid-glass">
+          <div class="step-head">
+            <span class="step-num">3</span>
+            <span class="step-title">Generate your own secrets</span>
+          </div>
+          <div class="step-body">
+            <div class="snippet" data-copy>
+<pre><code># NEXTAUTH_SECRET — signs session JWTs
+openssl rand -base64 32
+
+# ENCRYPTION_KEY — encrypts every user's stored API key
+# LOSING THIS BRICKS EVERY USER'S STORED CREDENTIALS
+openssl rand -hex 32
+
+# AUTOPILOT_CRON_SECRET — auth for /api/cron/autopilots/tick
+openssl rand -hex 32</code></pre>
+              <button type="button" class="copy-btn" aria-label="Copy">Copy</button>
+            </div>
+            <p class="hint">
+              The repo ships <code>.env.example</code> with every variable
+              the app reads. Copy it to <code>.env</code> and fill in your
+              values. Never commit the filled version — <code>.env</code> is
+              in <code>.gitignore</code>.
+            </p>
+          </div>
+        </li>
+
+        <li class="step liquid-glass">
+          <div class="step-head">
+            <span class="step-num">4</span>
+            <span class="step-title">Rebrand (optional)</span>
+          </div>
+          <div class="step-body">
+            <p>
+              Want to call it something else? Every user-visible "CharClaw"
+              is in the following places. A find-and-replace handles them
+              in a minute:
+            </p>
+            <ul class="bullets">
+              <li><code>README.md</code> and <code>packages/landing/</code></li>
+              <li><code>packages/web/app/layout.tsx</code> — tab title</li>
+              <li><code>packages/web/app/login/login-client.tsx</code> — login heading</li>
+              <li><code>packages/desktop/package.json</code> — <code>appId</code>, <code>productName</code></li>
+              <li><code>packages/desktop/src/{main,tray}.ts</code> — window title, tray menu</li>
+            </ul>
+            <p>
+              Leave the internal string <code>"charclaw"</code> in
+              <code>LABEL_KEY</code> and the MCP fallback <code>clientId</code>
+              alone unless you're comfortable orphaning any pre-existing
+              Daytona sandboxes or MCP server authorizations. <a
+              href="https://github.com/AnitChaudhry/charclaw/blob/master/DEPLOYMENT.md#11--known-limitations"
+              target="_blank" rel="noopener">DEPLOYMENT.md §11</a> explains.
+            </p>
+          </div>
+        </li>
+
+        <li class="step liquid-glass">
+          <div class="step-head">
+            <span class="step-num">5</span>
+            <span class="step-title">Deploy</span>
+          </div>
+          <div class="step-body">
+            <p>
+              Any Node host works: Vercel, Fly.io, Railway, Render, or your
+              own VM with <code>pm2</code>. The full checklist is in
+              <a href="https://github.com/AnitChaudhry/charclaw/blob/master/DEPLOYMENT.md"
+                 target="_blank" rel="noopener">DEPLOYMENT.md</a>:
+              migrations, Autopilot cron wiring, desktop-app build flags,
+              and a post-deploy smoke test.
+            </p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ─── Footer ─── -->
+    <footer class="footer">
+      <a href="https://github.com/AnitChaudhry/CharClaw-App" target="_blank" rel="noopener">Source on GitHub</a>
+      <span class="dot">·</span>
+      <span>Apache 2.0 (app) · AGPL-3.0 (SDK)</span>
+      <span class="dot">·</span>
+      <a href="https://github.com/AnitChaudhry/CharClaw-App/blob/main/DEPLOYMENT.md" target="_blank" rel="noopener">Deployment guide</a>
+      <br />
+      <span class="footer-meta">
+        This site's source is open at
+        <a href="https://github.com/AnitChaudhry/CharClaw-App/tree/main/public-site" target="_blank" rel="noopener">/public-site</a>
+        · made with <a href="https://motionsite.ai" target="_blank" rel="noopener">motionsite.ai</a>
+      </span>
+    </footer>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

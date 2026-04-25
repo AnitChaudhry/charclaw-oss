@@ -1,0 +1,99 @@
+{
+  "name": "@charclaw/desktop",
+  "version": "0.2.1",
+  "description": "CharClaw Desktop — Electron wrapper with built-in local runtime daemon",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:next\" \"npm run dev:electron\"",
+    "dev:next": "cd ../web && next dev --webpack --port 3000",
+    "dev:electron": "wait-on http://localhost:3000 && electron .",
+    "prebuild": "node scripts/bake-server-url.mjs",
+    "build": "npm run prebuild && tsc && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
+    "build:mac": "npm run prebuild && tsc && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac",
+    "build:win": "npm run prebuild && tsc && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false SIGNTOOL_PATH=\"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\signtool.exe\" electron-builder --win",
+    "build:linux": "npm run prebuild && tsc && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --linux",
+    "release:ci": "npm run prebuild && tsc && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --publish always",
+    "lint": "eslint src --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "build": {
+    "appId": "ai.charclaw.desktop",
+    "productName": "CharClaw",
+    "npmArgs": [
+      "--ignore-scripts",
+      "--include=dev"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "assets/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../daemon/dist",
+        "to": "daemon",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "identity": null,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "AnitChaudhry",
+        "repo": "CharClaw-App",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "concurrently": "^9.1.2",
+    "cross-env": "^10.1.0",
+    "electron": "33.4.11",
+    "electron-builder": "^25.1.8",
+    "tsx": "^4.19.3",
+    "typescript": "^5.3.0",
+    "wait-on": "^8.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

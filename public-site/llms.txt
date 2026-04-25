@@ -1,0 +1,56 @@
+# CharClaw
+
+> CharClaw is a self-hosted AI engineering platform: assign GitHub issues to AI coding agents (Claude Code, OpenAI Codex, Google Gemini, Block Goose, OpenCode, Pi), watch them write code on your own machine, and ship pull requests. The agent execution layer is published as the open-source `@charclaw/agents` SDK on npm.
+
+CharClaw runs entirely on infrastructure you control — no cloud sandbox fees, no rate-limited micro-VMs, no third-party telemetry. Bring your own API keys, your own GitHub OAuth app, your own database, and self-host the web app, the desktop app (Electron), or both.
+
+## SDK
+
+- [`@charclaw/agents` on npm](https://www.npmjs.com/package/@charclaw/agents): The TypeScript SDK at the heart of CharClaw — runs Claude/Codex/Gemini/Goose/OpenCode/Pi in Daytona sandboxes or on the local host, with restart-tolerant background sessions and a unified event stream. Published under AGPL-3.0-or-later.
+- [SDK Documentation](https://anitchaudhry.github.io/CharClaw-App/docs/agents-sdk.html): Full reference — install, two quick starts (Daytona + local), restart-tolerant flow, agent table, API reference per method, event types, "how it works" walkthrough.
+- [SDK source on GitHub](https://github.com/AnitChaudhry/CharClaw-App/tree/main/packages/agents): Browse the implementation.
+
+## App
+
+- [CharClaw landing page](https://anitchaudhry.github.io/CharClaw-App/): Marketing site, downloads, fork-and-deploy guide.
+- [Public OSS repository](https://github.com/AnitChaudhry/CharClaw-App): Apache 2.0 (app) + AGPL-3.0 (SDK). Clone, fork, rebrand, ship.
+- [Desktop app releases](https://github.com/AnitChaudhry/CharClaw-App/releases): macOS (.dmg), Windows (.exe), Linux (.AppImage). Auto-detects your OS on the download page.
+
+## Blog
+
+- [Launching the CharClaw Agents SDK (April 2026)](https://anitchaudhry.github.io/CharClaw-App/blog/launching-charclaw-agents-sdk.html): The story behind extracting `@charclaw/agents`, what's in v0.2.0, why we picked AGPL-3.0, day-one caveats, roadmap.
+
+## Architecture
+
+CharClaw ships as four packages plus the SDK:
+
+- `@charclaw/agents` — the SDK (AGPL-3.0, on npm)
+- `@charclaw/web` — Next.js 16 web dashboard (Apache 2.0)
+- `@charclaw/daemon` — Node.js CLI that runs agents on your local machine and reports progress over SSE (Apache 2.0)
+- `@charclaw/desktop` — Electron wrapper around the web app + bundled daemon (Apache 2.0)
+- `@charclaw/landing` — Vite + React marketing landing page (Apache 2.0)
+
+The SDK is independently useful — install `@charclaw/agents` from npm in any Node project to add Claude/Codex/Gemini/etc. background execution without adopting the rest of CharClaw.
+
+## Install
+
+```
+npm install @charclaw/agents @daytonaio/sdk
+```
+
+Or fork the whole stack:
+
+```
+git clone https://github.com/AnitChaudhry/CharClaw-App.git
+cd CharClaw-App
+bash scripts/setup.sh
+npm run dev
+```
+
+## Contact
+
+Maintainer: Anit Chaudhary · `anitc98@gmail.com` · Commercial AGPL-3.0 license inquiries welcome.
+
+## License
+
+Apache 2.0 for the app. AGPL-3.0-or-later for the SDK. See [LICENSE](https://github.com/AnitChaudhry/CharClaw-App/blob/main/LICENSE).

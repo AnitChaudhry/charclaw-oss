@@ -1,0 +1,531 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String           @id @default(cuid())
+  name          String?
+  email         String?          @unique
+  emailVerified DateTime?
+  image         String?
+  githubId      String?          @unique
+  githubLogin   String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  repoOrder     Json?
+  isAdmin       Boolean          @default(false)
+  maxSandboxes  Int?
+  accounts      Account[]
+  repos         Repo[]
+  sandboxes     Sandbox[]
+  sessions      Session[]
+  credentials   UserCredentials?
+  activityLogs  ActivityLog[]
+  ownedWorkspace        Workspace?         @relation("WorkspaceOwner")
+  workspaceMemberships  WorkspaceMember[]
+  runtimes      Runtime[]
+  agentProfiles AgentProfile[]
+  issues        Issue[]
+  skills        Skill[]
+  inboxItems    InboxItem[]
+  pins          Pin[]
+  authoredComments IssueComment[]
+  conversationMessages ConversationMessage[]
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model UserCredentials {
+  id                        String   @id @default(cuid())
+  userId                    String   @unique
+  anthropicApiKey           String?
+  anthropicAuthType         String   @default("api-key")
+  anthropicAuthToken        String?
+  updatedAt                 DateTime @updatedAt
+  sandboxAutoStopInterval   Int      @default(5)
+  openaiApiKey              String?
+  daytonaApiKey             String?
+  opencodeApiKey            String?
+  geminiApiKey              String?
+  squashOnMerge             Boolean  @default(false)
+  prDescriptionMode         String   @default("ai") // "ai" or "commits"
+  localWorkspaceDir         String?  // base dir for local-runtime clones, e.g. /home/user/charclaw
+  daemonSetupToken          String?  // one-time token for daemon registration (nulled after use)
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Workspace {
+  id            String            @id @default(cuid())
+  ownerId       String            @unique
+  name          String
+  slug          String            @unique
+  description   String?
+  avatarUrl     String?
+  owner         User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members       WorkspaceMember[]
+  repos         Repo[]
+  runtimes      Runtime[]
+  agentProfiles AgentProfile[]
+  projects      Project[]
+  conversations Conversation[]
+  autopilots    Autopilot[]
+  pins          Pin[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        String    @default("member") // "owner" | "admin" | "member"
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
+
+model Repo {
+  id            String          @id @default(cuid())
+  userId        String
+  workspaceId   String
+  name          String
+  owner         String
+  avatar        String?
+  defaultBranch      String
+  preferredBaseBranch String?
+  createdAt          DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  envVars       Json?
+  branches      Branch[]
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  mcpServers    RepoMcpServer[]
+
+  @@unique([userId, owner, name])
+  @@index([workspaceId])
+}
+
+model RepoMcpServer {
+  id           String    @id @default(cuid())
+  repoId       String
+  slug         String
+  name         String
+  url          String
+  iconUrl      String?
+  accessToken  String?
+  refreshToken String?
+  tokenExpiry  DateTime?
+  status       String    @default("pending")
+  lastError    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  clientId     String?
+  repo         Repo      @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@unique([repoId, slug])
+  @@index([repoId])
+}
+
+model Branch {
+  id     String @id @default(cuid())
+  repoId String
+  repo   Repo   @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  name        String
+  baseBranch  String?
+  startCommit String?
+  status      String  @default("idle") // "idle" | "running" | "creating" | "stopped" | "error"
+  prUrl       String?
+  draftPrompt String? @db.Text // Persisted draft input for chat continuity
+
+  // Agent configuration
+  agent String @default("claude-code") // "claude-code" | "opencode" | "codex" | "eliza" | "gemini" | "goose" | "pi"
+  model String? // Model selection for the agent (e.g., "sonnet", "gpt-4o")
+
+  // Commit tracking - HEAD at start of last execution, used for detecting new commits
+  lastShownCommitHash String?
+
+  // Sync flag - set when remote is updated (e.g., merge into this branch) and sandbox needs to pull
+  needsSync Boolean @default(false)
+
+  sandbox  Sandbox?
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([repoId, name])
+}
+
+model Sandbox {
+  id                String   @id @default(cuid())
+  sandboxId         String   @unique
+  sandboxName       String
+  userId            String
+  branchId          String   @unique
+  sessionId         String?
+  previewUrlPattern String?
+  status            String   @default("creating")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastActiveAt      DateTime @default(now())
+  sessionAgent      String?
+  runtimeId         String?
+  branch            Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  runtime           Runtime? @relation(fields: [runtimeId], references: [id])
+}
+
+model Message {
+  id            String          @id @default(cuid())
+  branchId      String
+  role          String
+  content       String
+  toolCalls     Json?
+  timestamp     String?
+  commitHash    String?
+  commitMessage String?
+  createdAt     DateTime        @default(now())
+  contentBlocks Json?
+  /// Ephemeral push-retry UI payload (same shape as PushErrorInfo); survives reload when set
+  pushError     Json?
+  /// Failed agent execute (ExecuteErrorInfo); survives reload when set
+  executeError  Json?
+  /// model | system | commit — only meaningful when role is assistant
+  assistantSource String?
+  agentId       String?
+  execution     AgentExecution?
+  branch        Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@index([branchId, createdAt])
+}
+
+model AgentExecution {
+  id                   String    @id @default(cuid())
+  messageId            String    @unique
+  sandboxId            String
+  executionId          String?   @unique
+  status               String    @default("running")
+  startedAt            DateTime  @default(now())
+  completedAt          DateTime?
+  latestSnapshot       Json?
+  accumulatedEvents    Json?
+  lastSnapshotPolledAt DateTime?
+  snapshotVersion      Int       @default(0) // Monotonic counter for optimistic concurrency
+  message              Message   @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([sandboxId, status])
+}
+
+// ─── 10x MENTOR: RUNTIME ──────────────────────────────────────────────────
+// Pluggable compute target. kind="local" is the local-machine daemon;
+// kind="daytona" preserves backwards-compat during migration.
+model Runtime {
+  id            String         @id @default(cuid())
+  userId        String
+  workspaceId   String
+  name          String
+  kind          String         @default("local") // "local" | "daytona" | "docker" | "ssh"
+  status        String         @default("offline") // "online" | "offline" | "busy"
+  workspaceRoot String?        // absolute path on the local machine, e.g. /home/user/charclaw
+  capabilities  Json?          // { agents: ["claude-code","codex"], freeDiskGb: 120 }
+  daemonToken   String?        @unique // long-lived Bearer token issued at registration
+  lastHeartbeat DateTime?
+  createdAt     DateTime       @default(now())
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  sandboxes     Sandbox[]
+  agentProfiles AgentProfile[]
+
+  @@index([userId, status])
+  @@index([workspaceId])
+}
+
+// ─── 10x MENTOR: AGENT PROFILE ────────────────────────────────────────────
+// Agent-as-teammate identity. Separate from runtime CLI choice.
+model AgentProfile {
+  id            String   @id @default(cuid())
+  userId        String
+  workspaceId   String
+  name          String
+  slug          String   // unique human-readable handle, e.g. "aria"
+  kind          String   @default("claude-code") // "claude-code"|"codex"|"opencode"|"gemini"|"pi"
+  model         String?
+  avatarUrl     String?
+  bio           String?
+  runtimeId     String?
+  defaultRepoId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  runtime       Runtime? @relation(fields: [runtimeId], references: [id])
+  issues        Issue[]
+
+  @@unique([userId, slug])
+  @@index([userId])
+  @@index([workspaceId])
+}
+
+// ─── CHARCLAW: ISSUE BOARD ────────────────────────────────────────────────
+model Issue {
+  id              String         @id @default(cuid())
+  userId          String
+  workspaceId     String?
+  projectId       String?
+  title           String
+  body            String?        @db.Text
+  status          String         @default("backlog") // "backlog"|"claimed"|"in_progress"|"blocked"|"done"|"failed"
+  priority        Int            @default(0)
+  assigneeUserId  String?
+  assigneeAgentId String?
+  branchId        String?        @unique
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assigneeAgent   AgentProfile?  @relation(fields: [assigneeAgentId], references: [id])
+  project         Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  comments        IssueComment[]
+  events          IssueEvent[]
+
+  @@index([userId, status])
+  @@index([workspaceId, status])
+  @@index([projectId, status])
+}
+
+model IssueComment {
+  id           String   @id @default(cuid())
+  issueId      String
+  authorUserId String?
+  authorAgent  String?  // agent slug when written by an agent
+  body         String   @db.Text
+  mentions     Json?    // [{ kind: "user"|"agent", id: string, login?: string, slug?: string }]
+  createdAt    DateTime @default(now())
+  issue        Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  author       User?    @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
+
+  @@index([issueId, createdAt])
+  @@index([authorUserId])
+}
+
+model IssueEvent {
+  id        String   @id @default(cuid())
+  issueId   String
+  kind      String   // "status_change"|"assigned"|"blocked"|"skill_applied"
+  payload   Json?
+  createdAt DateTime @default(now())
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@index([issueId, createdAt])
+}
+
+// ─── 10x MENTOR: SKILL LIBRARY ────────────────────────────────────────────
+// Reusable playbooks extracted from completed agent sessions.
+// embedding: raw bytes for pgvector (cast in raw SQL as vector(1536)).
+model Skill {
+  id              String   @id @default(cuid())
+  userId          String
+  workspaceId     String?
+  title           String
+  description     String?  @db.Text
+  steps           Json     // [{ action: string, command?: string, notes?: string }]
+  tags            String[]
+  sourceSessionId String?  // AgentExecution.id this was derived from
+  useCount        Int      @default(0)
+  embedding       Bytes?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([workspaceId])
+}
+
+// ─── CHARCLAW: PROJECTS ───────────────────────────────────────────────────
+// Lightweight grouping of issues inside a workspace.
+model Project {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  slug        String
+  description String?   @db.Text
+  color       String?   // hex, e.g. "#3b82f6"
+  icon        String?   // lucide icon name or emoji
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  issues      Issue[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId, archivedAt])
+}
+
+// ─── CHARCLAW: INBOX + MENTIONS ───────────────────────────────────────────
+// Per-user notification feed. Mentions stored inline on IssueComment /
+// ConversationMessage via the `mentions` JSON column; InboxItem is the
+// fanned-out record each recipient gets, with read state.
+model InboxItem {
+  id             String    @id @default(cuid())
+  userId         String    // recipient
+  workspaceId    String
+  kind           String    // "mention" | "assigned" | "commented" | "status_change" | "autopilot_result"
+  refType        String    // "issue" | "conversation" | "comment" | "message"
+  refId          String    // id of the referenced entity
+  actorUserId    String?
+  actorAgentSlug String?
+  summary        String?   @db.Text
+  payload        Json?
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+  @@index([workspaceId, createdAt])
+}
+
+// ─── CHARCLAW: CONVERSATIONS (chat-with-agent) ────────────────────────────
+// Direct chat with an agent profile, separate from branch chat.
+model Conversation {
+  id             String                @id @default(cuid())
+  workspaceId    String
+  ownerUserId    String                // the human participant who owns this chat
+  agentProfileId String?
+  title          String?
+  archivedAt     DateTime?
+  lastMessageAt  DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  workspace      Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  messages       ConversationMessage[]
+
+  @@index([workspaceId, ownerUserId, lastMessageAt])
+  @@index([agentProfileId])
+}
+
+model ConversationMessage {
+  id              String       @id @default(cuid())
+  conversationId  String
+  role            String       // "user" | "assistant" | "system" | "tool"
+  authorUserId    String?
+  authorAgentSlug String?
+  content         String       @db.Text
+  contentBlocks   Json?
+  mentions        Json?        // same shape as IssueComment.mentions
+  toolCalls       Json?
+  createdAt       DateTime     @default(now())
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  author          User?        @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
+
+  @@index([conversationId, createdAt])
+}
+
+// ─── CHARCLAW: AUTOPILOTS ─────────────────────────────────────────────────
+// Declarative recurring agent jobs. A schedule fires the trigger, which
+// creates an Issue (or series) and assigns it to the configured agent.
+model Autopilot {
+  id              String         @id @default(cuid())
+  workspaceId     String
+  name            String
+  description     String?        @db.Text
+  enabled         Boolean        @default(true)
+  trigger         String         @default("cron") // "cron" | "webhook" | "on_pr_open" | "manual"
+  schedule        String?        // cron expression when trigger="cron"
+  timezone        String         @default("UTC")
+  agentProfileId  String?
+  repoId          String?
+  config          Json           // { titleTemplate, bodyTemplate, priority, labels, ... }
+  lastRunAt       DateTime?
+  nextRunAt       DateTime?
+  createdByUserId String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  workspace       Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  runs            AutopilotRun[]
+
+  @@index([workspaceId, enabled, nextRunAt])
+}
+
+model AutopilotRun {
+  id          String    @id @default(cuid())
+  autopilotId String
+  status      String    @default("pending") // "pending" | "succeeded" | "failed" | "skipped"
+  issueId     String?   // issue created by this run, if any
+  error       String?   @db.Text
+  startedAt   DateTime  @default(now())
+  finishedAt  DateTime?
+  autopilot   Autopilot @relation(fields: [autopilotId], references: [id], onDelete: Cascade)
+
+  @@index([autopilotId, startedAt])
+}
+
+// ─── CHARCLAW: PINS ───────────────────────────────────────────────────────
+// Per-user-per-workspace saved filters / quick links. Pinned to sidebar.
+model Pin {
+  id          String    @id @default(cuid())
+  userId      String
+  workspaceId String
+  kind        String    // "issue_filter" | "project" | "conversation" | "repo" | "url"
+  label       String
+  icon        String?
+  targetRef   String?   // id of referenced entity, if applicable
+  filter      Json?     // saved query for "issue_filter"
+  position    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([userId, workspaceId, position])
+}
